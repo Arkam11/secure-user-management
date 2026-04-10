@@ -6,6 +6,8 @@ import { GlobalExceptionFilter } from './common/filters/global-exception.filter'
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import * as fs from 'fs';
+import { ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 async function bootstrap() {
   // Ensure logs directory exists

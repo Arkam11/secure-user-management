@@ -30,6 +30,13 @@ export default function DashboardPage() {
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
+      if (currentUser?.role !== 'admin') {
+        // Regular users only see themselves
+        const { data } = await usersApi.getOne(currentUser!.id);
+        setUsers([data]);
+        setTotal(1);
+        return;
+      }
       const { data } = await usersApi.getAll({ page, limit, search: search || undefined });
       setUsers(data.data);
       setTotal(data.total);
@@ -38,9 +45,13 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, search]);
+  }, [page, search, currentUser]);
 
-  useEffect(() => { fetchUsers(); }, [fetchUsers]);
+  useEffect(() => { 
+    if (currentUser) {
+      fetchUsers(); 
+    }
+  }, [fetchUsers, currentUser]);
 
   const openCreate = () => { setEditUser(null); setForm(EMPTY_FORM); setShowModal(true); };
   const openEdit = (u: UserData) => {

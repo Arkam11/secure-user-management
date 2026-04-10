@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 import databaseConfig from './config/database.config';
 import jwtConfig from './config/jwt.config';
 import redisConfig from './config/redis.config';
@@ -37,7 +38,7 @@ import { AppService } from './app.service';
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: () => ({
-        throttlers: [{ ttl: 60000, limit: 100 }],
+        throttlers: [{ ttl: 60000, limit: 5 }],
       }),
       inject: [ConfigService],
     }),
@@ -47,6 +48,12 @@ import { AppService } from './app.service';
     WebsocketModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}
